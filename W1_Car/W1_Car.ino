@@ -1,4 +1,5 @@
 #include "car.h"
+#include <FS.h>
 
 CAR* car;
 int tim = 0;
@@ -13,6 +14,8 @@ void setup()
     delay(1000);
   }
 
+  SPIFFS.begin();
+
   Serial.println("Boot has finished...");
   car = new CAR(D8,D7,D6,D3,D0,D5);
 }
@@ -21,6 +24,8 @@ void setup()
 void loop() {
   car->process();
   //demo();
+
+  //Serial.println(analogRead(A0));
 }
 
 void demo(void)
@@ -35,7 +40,7 @@ void demo(void)
     //digitalWrite(D8, HIGH);
     //digitalWrite(D6, HIGH);
     car->engine_on();
-    car->rotate(TURN_DIRECTION::RIGHT, 333);
+    car->rotate(TURN_DIRECTION::RIGHT, 1000);
   }
   if ((cntr - tim) == 12000)
   {
@@ -53,7 +58,7 @@ void demo(void)
     Serial.println("20th second Left");
     //digitalWrite(D8, HIGH);
     //digitalWrite(D7, HIGH);
-    car->rotate(TURN_DIRECTION::LEFT, 100);  
+    car->rotate(TURN_DIRECTION::LEFT, 700);  
   }
   if ((cntr - tim) >= 22000)
   {

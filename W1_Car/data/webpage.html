@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta content="width=device-width, initial-scale=1">
+  <style>
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 20px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 12px;
+      width: 12px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    input:checked+.slider {
+      background-color: #2196F3;
+    }
+
+    input:focus+.slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked+.slider:before {
+      -webkit-transform: translateX(28px);
+      -ms-transform: translateX(28px);
+      transform: translateX(28px);
+    }
+
+    .slider.round {
+      border-radius: 34px;
+    }
+
+    .slider.round:before {
+      border-radius: 50%;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- DEBUG -->
+  <p id="demo0"></p>
+  <p id="demo"></p>
+  <p id="demo2"></p>
+
+  <div id="Main">
+    <h1>Engine on</h1>
+    <label class="switch" oninput="sendDataElement('engine', 'engine', dataID.engine, true)();">
+      <input type="checkbox" id="engine">
+      <span class="slider round"></span>
+    </label>
+    <br /><br /><br /><br />
+  </div>
+
+  <div id="Motors">
+    <table class="fixed">
+      <h2>Motors:</h2>
+      <col width="295px" />
+      <col width="195px" />
+      <tr>
+        <td>
+          <p>
+            <font size="4" bold>Left Motor:</font>
+          </p>
+        </td>
+        <td>
+          <p>
+            <font size="4" bold>Right Motor:</font>
+          </p>
+        </td>
+      </tr>
+    </table>
+    <table class="fixed">
+      <col width="60px" />
+      <col width="135px" />
+      <col width="100px" />
+      <col width="60px" />
+      <col width="135px" />
+      <tr>
+        <td>Enable:</td>
+        <td>
+          <label class="switch" oninput="sendDataElement('l_enab', 'l_enab', dataID.l_enab, true)();">
+            <input type="checkbox" id="l_enab">
+            <span class="slider round"></span>
+          </label>
+        </td>
+        <td></td>
+        <td>Enable:</td>
+        <td>
+          <label class="switch" oninput="sendDataElement('r_enab', 'r_enab', dataID.r_enab, true)();">
+            <input type="checkbox" id="r_enab">
+            <span class="slider round"></span>
+          </label>
+        </td>
+      </tr>
+      <tr>
+        <td>Direction:</td>
+        <td><input id="l_dir" type="range" min="0" max="1" step="1"
+            oninput="sendDataElement('l_dir', 'l_dir', dataID.l_dir)();"></td>
+        <td></td>
+        <td>Direction:</td>
+        <td><input id="r_dir" type="range" min="0" max="1" step="1"
+            oninput="sendDataElement('r_dir', 'r_dir', dataID.r_dir)();"></td>
+      </tr>
+      <tr>
+        <td>Speed:</td>
+        <td><input id="l_speed" type="range" min="0" max="1023" step="1" value="0"
+            oninput="sendDataElement('l_speed', 'l_speed', dataID.l_speed);"></td>
+        <td></td>
+        <td>Speed:</td>
+        <td><input id="r_speed" type="range" min="0" max="1023" step="1" value="0"
+            oninput="sendDataElement('r_speed', 'r_speed', dataID.r_speed)();"></td>
+      </tr>
+    </table>
+    <br /><br />
+  </div>
+
+  <div id="Navigation">
+    <h2>Navigation: (communication doesn't work in this direction yet)</h2>
+    <table>
+      <col width="60px" />
+      <col width="135px" />
+      <tr>
+        <td>x:</td>
+        <td>
+          <p id="navi_x"></p>
+        </td>
+      </tr>
+      <tr>
+        <td>y:</td>
+        <td>
+          <p id="navi_y"></p>
+        </td>
+      </tr>
+      <tr>
+        <td>omega:</td>
+        <td>
+          <p id="navi_w"></p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <script id="globals">
+      //var connection;
+      var systemData;
+      var dataID;
+  </script>
+  <script id="functions">
+      var connection = new WebSocket('ws://' + location.hostname + ':81/', ['arduino']);
+  
+      connection.onopen = function () {
+        connection.send('Connect ' + new Date());
+      };
+      connection.onerror = function (error) {
+        console.log('WebSocket Error ', error);
+      };
+      connection.onmessage = function (e) {
+        console.log('Server: ', e.data);
+      };
+  
+     systemData = {
+        engine: '',
+        l_enab: '',
+        l_speed: '',
+        l_dir: '',
+        r_enab: '',
+        r_speed: '',
+        r_dir: '',
+        imu_ax: '',
+        imu_ay: '',
+        imu_az: '',
+        imu_wx: '',
+        imu_wy: '',
+        imu_wz: '',
+        imu_Bx: '',
+        imu_By: '',
+        imu_Bz: '',
+        imu_P: '',
+        lightsOn: '',
+        navi_x: '',
+        navi_y: '',
+        navi_w: ''
+      };
+      dataID = {
+        engine:  "00",
+        l_enab:  "01",
+        l_speed: "02",
+        l_dir:   "03",
+        r_enab:  "04",
+        r_speed: "05",
+        r_dir:   "06",
+        imu_ax:  "07",
+        imu_ay:  "08",
+        imu_az:  "09",
+        imu_wx:  "0A",
+        imu_wy:  "0B",
+        imu_wz:  "0C",
+        imu_Bx:  "0D",
+        imu_By:  "0R",
+        imu_Bz:  "0F",
+        imu_P:   "10",
+        // lightsOn: "11",
+        // navi_x: "12",
+        // navi_y: "13",
+        // navi_w: "14"
+      };
+  
+      function sendDataElement(id, dataMember, msgId, bool = false)
+      {
+        if (bool == true)
+        {
+          var val = document.getElementById(id).checked;
+          (val == true) ? val = '1' : val = '0';
+        }
+        else
+        {
+          var val = parseInt(document.getElementById(id).value).toString(16);
+        }
+  
+        if (val.length < 2)
+        {
+          val = '0' + val;
+        }
+        systemData[dataMember] = val;
+  
+        var msg = '#' + msgId + systemData[dataMember];
+        // DEBUG
+        document.getElementById("demo").innerHTML = "Msg: " + msg;
+        printObject(systemData);
+        // END DEBUG
+        console.log('Msg: ' + msg);
+        connection.send(msg);
+      }
+  
+      // DEBUG
+      function printObject(o)
+      {
+        var msg = "";
+  
+        for (var p in o)
+        {
+          msg += p + ': ' + o[p] + '\n';
+        }
+  
+        document.getElementById("demo2").innerHTML = "Msg: " + msg;
+      }
+      // END DEBUG
+</script>
+
+
+</body>
+
+</html>

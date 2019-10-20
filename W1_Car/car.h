@@ -22,7 +22,10 @@ class CAR
     // net
     WEBSERVER* net;
     //imu
+    Imu*       imu;
     uint8_t    speed;
+
+    uint32_t   convert_Hex2Dec (char* const arr);
     
   public:
     CAR(const uint8_t r_en, const uint8_t r_cp1, const uint8_t r_cp2,

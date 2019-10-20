@@ -17,10 +17,13 @@ class MOTOR
     // Motor operational properties.
     bool      enabled;
     ROTATION  direction;
-    uint8_t   speed;
+    uint32_t  speed;
 
     // Debug
     bool      debug_on;
+
+    void actuate_motor_speed(void);
+    void actuate_motor_direction(void);
   
   public:
     MOTOR(uint8_t const en, uint8_t const cp1, uint8_t const cp2, bool const deb);
